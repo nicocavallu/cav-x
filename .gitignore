@@ -1,0 +1,8 @@
+build/
+bin/
+obj/
+*.elf
+*.bin
+*.map
+*.hex
+.vscode/

@@ -1,0 +1,6 @@
+[submodule "drivers/external/cmsis_device_h7"]
+	path = drivers/external/cmsis_device_h7
+	url = https://github.com/STMicroelectronics/cmsis-device-h7.git
+[submodule "drivers/external/CMSIS_5"]
+	path = drivers/external/CMSIS_5
+	url = https://github.com/ARM-software/CMSIS_5.git
