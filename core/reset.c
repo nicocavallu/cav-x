@@ -48,6 +48,36 @@ void RTC_WKUP_handler(void) __attribute__((weak, alias("default_handler")));
 void FLASH_handler(void) __attribute__((weak, alias("default_handler")));
 void RCC_handler(void) __attribute__((weak, alias("default_handler")));
 
+// External Interrupts 
+void EXTI0_handler(void) __attribute__((weak, alias("default_handler")));
+void EXTI15_10_handler(void) __attribute__((weak, alias("default_handler")));
+
+// Timers 
+void TIM2_handler(void) __attribute__((weak, alias("default_handler")));
+void TIM3_handler(void) __attribute__((weak, alias("default_handler")));
+
+// UART/Serial 
+void USART1_handler(void) __attribute__((weak, alias("default_handler")));
+void USART3_handler(void) __attribute__((weak, alias("default_handler")));
+
+// I2C 
+void I2C1_EV_handler(void) __attribute__((weak, alias("default_handler")));
+void I2C1_ER_handler(void) __attribute__((weak, alias("default_handler")));
+void I2C2_EV_handler(void) __attribute__((weak, alias("default_handler")));
+void I2C2_ER_handler(void) __attribute__((weak, alias("default_handler")));
+void I2C3_EV_handler(void) __attribute__((weak, alias("default_handler")));
+void I2C3_ER_handler(void) __attribute__((weak, alias("default_handler")));
+void I2C4_EV_handler(void) __attribute__((weak, alias("default_handler")));
+void I2C4_ER_handler(void) __attribute__((weak, alias("default_handler")));
+
+// SPI
+void SPI1_handler(void) __attribute__((weak, alias("default_handler")));
+void SPI2_handler(void) __attribute__((weak, alias("default_handler")));
+void SPI3_handler(void) __attribute__((weak, alias("default_handler")));
+void SPI4_handler(void) __attribute__((weak, alias("default_handler")));
+void SPI5_handler(void) __attribute__((weak, alias("default_handler")));
+void SPI6_handler(void) __attribute__((weak, alias("default_handler")));
+
 
 // Entry point for the program (Defined in linker script)
 void reset_handler(void) 
