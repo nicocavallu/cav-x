@@ -7,6 +7,9 @@ It also contains the default interrupt handlers, which can be overridden by the 
 
 #include <stdint.h>
 
+// Define CPACR Register 
+#define CPACR (*(volatile uint32_t *)(0xE000ED88))
+
 // Define the symbols used in the linker script (32 bits is STM preferred word size)
 extern uint32_t _estack;
 extern uint32_t _sdata;
@@ -78,10 +81,12 @@ void SPI4_handler(void) __attribute__((weak, alias("default_handler")));
 void SPI5_handler(void) __attribute__((weak, alias("default_handler")));
 void SPI6_handler(void) __attribute__((weak, alias("default_handler")));
 
-
 // Entry point for the program (Defined in linker script)
 void reset_handler(void) 
 {   
+    // Turn on Coproccessors 1 and 2 
+    CPACR |= (0xF << 20);
+
     // Pointers to the RAM and FLASH
     uint32_t *src, *dst, *endR;
     src = &_sidata;
@@ -109,7 +114,7 @@ void reset_handler(void)
     }
 
     // Call library function 
-    __libc_init_array();
+    //_libc_init_array();
 
     // Call main
     main();
@@ -125,10 +130,10 @@ void default_handler(void)
     while(1) {}
 }
 
-// Create vector table  (Table 145 NVIC pg. 750)
+// Create vector table  (Table 142 NVIC)
 __attribute__((section(".isr_vector")))
 void (* const g_pfnVectors[])(void) = {
-    (void *)&_estack, //Initial Stack Pointer
+    (void *)&_estack, //Main Stack Pointer
     reset_handler, // Entry point
     NMI_handler, 
     HardFault_handler,
