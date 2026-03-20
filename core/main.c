@@ -1,6 +1,7 @@
 /* Simple blink script for a GPIO pin to test vector table*/
 
 #include <stdint.h>
+#include "uart.h"
 
 // Define Register Addresses 
 #define GPIOB_BASE 0x58020400UL  
@@ -8,9 +9,8 @@
 #define GPIOB_ODR (*(volatile uint32_t*)(GPIOB_BASE + 0x14))
 
 #define RCC_BASE 0x58024400UL
-//#define RCC_CR (*(volatile uint32_t*)(RCC_BASE + 0x00))
 #define RCC_AHB4ENR (*(volatile uint32_t*)(RCC_BASE + 0x140))
-//#define RCC_APB1ENR1 (*(volatile uint32_t*)(RCC_BASE + 0x148))
+
 
 //Initialize user functions 
 int main(void);
