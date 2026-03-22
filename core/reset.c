@@ -61,7 +61,7 @@ void TIM3_handler(void) __attribute__((weak, alias("default_handler")));
 
 // UART/Serial 
 void USART1_handler(void) __attribute__((weak, alias("default_handler")));
-void USART3_handler(void) __attribute__((weak, alias("default_handler")));
+void USART3_IRQHandler(void) __attribute__((weak, alias("default_handler")));
 
 // I2C 
 void I2C1_EV_handler(void) __attribute__((weak, alias("default_handler")));
@@ -86,6 +86,8 @@ void reset_handler(void)
 {   
     // Turn on Coproccessors 1 and 2 
     CPACR |= (0xF << 20);
+    __asm volatile("dsb");
+    __asm volatile("isb");
 
     // Pointers to the RAM and FLASH
     uint32_t *src, *dst, *endR;
@@ -130,117 +132,30 @@ void default_handler(void)
     while(1) {}
 }
 
-// Create vector table  (Table 142 NVIC)
+// Create vector table using GCC Designated Initializers (Table 142 NVIC)
 __attribute__((section(".isr_vector")))
 void (* const g_pfnVectors[])(void) = {
-    (void *)&_estack, //Main Stack Pointer
-    reset_handler, // Entry point
-    NMI_handler, 
-    HardFault_handler,
-    MemManage_handler,
-    BusFault_handler,
-    UsageFault_handler,
-    0,0,0,0,
-    SVCall_handler,
-    DebugMonitor_handler,
-    0,
-    PendSV_handler,
-    SysTick_handler,
+    
+    //Fill indices 0 through 150 with default_handler.
+    [0 ... 165] = default_handler,
 
-    // ST32 Specific Handlers
+    // 2. System Exceptions 
+    [0] = (void (*)(void))(&_estack), // Main Stack Pointer
+    [1]  = reset_handler,            // Entry point
+    [2]  = NMI_handler, 
+    [3]  = HardFault_handler,
+    [4]  = MemManage_handler,
+    [5]  = BusFault_handler,
+    [6]  = UsageFault_handler,
+    [11] = SVCall_handler,
+    [12] = DebugMonitor_handler,
+    [14] = PendSV_handler,
+    [15] = SysTick_handler,
 
-    WWDG1_handler,
-    PVD_PVM_handler,
-    RTC_TAMP_STAMP_CSS_LSE_handler,
-    RTC_WKUP_handler,
-    FLASH_handler,
-    RCC_handler,
-    EXTI0_handler,
-    default_handler,
-    default_handler,
-    default_handler,
-    default_handler,
-    default_handler,
-    default_handler,
-    default_handler,
-    default_handler,
-    default_handler,
-    default_handler,
-    default_handler,
-    default_handler,
-    default_handler,
-    default_handler,
-    default_handler,
-    default_handler,
-    default_handler,
-    default_handler,
-    default_handler,
-    default_handler,
-    default_handler,
-    TIM2_handler,
-    TIM3_handler,
-    default_handler,
-    I2C1_EV_handler,
-    I2C1_ER_handler,
-    I2C2_EV_handler,
-    I2C2_ER_handler,
-    SPI1_handler,
-    SPI2_handler,
-    USART1_handler,
-    default_handler,
-    USART3_handler,
-    default_handler,
-    default_handler,
-    0,
-    default_handler,
-    default_handler,
-    default_handler,
-    default_handler,
-    default_handler,
-    default_handler,
-    default_handler,
-    default_handler,
-    SPI3_handler,
-    default_handler,
-    default_handler,
-    default_handler,
-    default_handler,
-    default_handler,
-    default_handler,
-    default_handler,
-    default_handler,
-    default_handler,
-    default_handler,
-    default_handler,
-    default_handler,
-    0, 0, 0, 0,
-    default_handler,
-    default_handler,
-    default_handler,
-    default_handler,
-    I2C3_EV_handler,
-    I2C3_ER_handler,
-    default_handler,
-    default_handler,
-    default_handler,
-    default_handler,
-    default_handler,
-    0,
-    default_handler,
-    default_handler,
-    default_handler,
-    default_handler,
-    SPI4_handler,
-    SPI5_handler,
-    SPI6_handler,
-    default_handler,
-    default_handler,
-    default_handler,
-    default_handler,
-    default_handler,
-    default_handler,
-    default_handler,
-    default_handler,
-    I2C4_EV_handler,
-    I2C4_ER_handler,
+    // 3. STM32 Specific Handlers (Index = 16 + IRQ_Number)    
+    [16 + 0]  = WWDG1_handler,
+    [16 + 28] = TIM2_handler,
+    [16 + 29] = TIM3_handler,
+    [16 + 37] = USART1_handler,
+    [16 + 39] = USART3_IRQHandler, 
 };

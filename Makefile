@@ -10,7 +10,7 @@ CPU = -mcpu=cortex-m7 -mthumb -mfloat-abi=hard -mfpu=fpv5-d16
 
 # Directories & Files
 LDSCRIPT = core/stm32h753xx.ld
-SRCS = core/reset.c core/main.c
+SRCS = core/reset.c core/main.c core/uart.c
 
 # Compiler Flags
 CFLAGS = $(CPU) -O0 -g3 -Wall -Icore --specs=nosys.specs
