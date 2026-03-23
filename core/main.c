@@ -27,37 +27,37 @@ void delay(volatile uint32_t count)
 //Blink GPIOB Pin 0 - Green LD1 
 int main(void)
 {
-    // 1. Enable GPIOB Clock for LED
+    // 1. Initialize the UART (This now fires up the DMA and DMAMUX!)
+    uart3_init();
+
+    // Initialize LED on PB0 (Optional)
     RCC_AHB4ENR |= (1 << 1); 
-    
-    // 2. Configure PB0 (Green LED LD1) as Output
     GPIOB_MODER &= ~(3 << 0);
     GPIOB_MODER |=  (1 << 0);
 
-    // 3. Initialize UART & Enable Interrupts
-    uart3_init(); 
-    
-    // 4. Boot Message (Using your custom _write printf!)
-    printf("\r\n--- STM32H7 ISR Test Booting ---\r\n");
-    printf("Type anything! The main loop is busy blinking...\r\n");
+    // 2. Test standard TX
+    uart3_print("\r\n=================================\r\n");
+    uart3_print("STM32H7 DMA UART is ONLINE.\r\n");
+    uart3_print("Type a message and stop typing to trigger IDLE interrupt...\r\n");
+    uart3_print("=================================\r\n");
+
+    // Create a local buffer for processing the string
+    char input_buffer[64];
 
     while(1) 
     {
-        // Toggle PB0 (Heartbeat)
-        GPIOB_ODR ^= (1 << 0);
-        delay(10000000); // Massive delay to prove main loop is "busy"
+        // 3. Wait for the string
+        // The CPU will wait here doing nothing. 
+        // As you type, the DMA secretly fills rx_buffer in the background.
+        // When you stop typing, the IDLE interrupt fires, updates rx_head, and this function unblocks!
+        uart3_rx_string(input_buffer, sizeof(input_buffer));
 
-        // Check if the ISR snuck any characters into our buffer in the background!
-        while (rx_head != rx_tail) 
-        {
-            // Read the character the ISR saved
-            char c = rx_buffer[rx_tail];
-            
-            // Move the tail forward to "consume" the character
-            rx_tail = (rx_tail + 1) % RX_BUFFER_SIZE;
-            
-            // Print it back out to the terminal
-            printf("\r\nMain caught ISR char: %c\r\n", c);
-        }
+        // 4. Prove we got it!
+        uart3_print("\r\n[CPU Processed]: ");
+        uart3_print(input_buffer);
+        uart3_print("\r\n\n");
+
+        // Toggle LED to show we processed a full string
+        GPIOB_ODR ^= (1 << 0);
     }
 }

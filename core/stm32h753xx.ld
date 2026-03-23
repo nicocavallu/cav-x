@@ -21,7 +21,8 @@ MEMORY
   ITCM (rwx) : ORIGIN = 0x00000000, LENGTH = 64k
 
   AXISRAM (rwx) : ORIGIN = 0x24000000, LENGTH = 512k
-
+  
+  SRAM1 (rwx) : ORIGIN = 0x30000000, LENGTH = 128k
 }
 
 /* Define Sections */
@@ -108,6 +109,14 @@ SECTIONS
         . = ALIGN(4);
         _ebss = .;
     } > AXISRAM
+
+    .dma_buffer (NOLOAD) :
+    {
+        . = ALIGN(4);
+        *(.dma_buffer)
+        *(.dma_buffer*)
+        . = ALIGN(4);
+    } > SRAM1
 
     /* Check for stack overflow */
     ._user_heap_stack :

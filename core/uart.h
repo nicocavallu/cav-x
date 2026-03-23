@@ -10,21 +10,33 @@
 
 // RCC
 #define RCC_BASE 0x58024400UL
+#define RCC_AHB1ENR (*(volatile uint32_t*)(RCC_BASE + 0x138))
 #define RCC_AHB4ENR (*(volatile uint32_t*)(RCC_BASE + 0x140))
 #define RCC_APB1ENR1 (*(volatile uint32_t*)(RCC_BASE + 0x148))
 
 // USART3
 #define USART3_BASE 0x40004800UL
 #define USART3_CR1 (*(volatile uint32_t*)(USART3_BASE + 0x00))
+#define USART3_CR3 (*(volatile uint32_t*)(USART3_BASE + 0x08))
 #define USART3_BRR (*(volatile uint32_t*)(USART3_BASE + 0x0C))
 #define USART3_ISR (*(volatile uint32_t*)(USART3_BASE + 0x1C))
 #define USART3_ICR (*(volatile uint32_t*)(USART3_BASE + 0x20))
 #define USART3_RDR (*(volatile uint32_t*)(USART3_BASE + 0x24))
 #define USART3_TDR (*(volatile uint32_t*)(USART3_BASE + 0x28))
-#define RX_BUFFER_SIZE 128
-extern volatile char rx_buffer[RX_BUFFER_SIZE];
-extern volatile uint16_t rx_head;
-extern volatile uint16_t rx_tail;
+
+// DMA1 
+#define DMA1_BASE 0x40020000UL
+#define DMA1_LISR  (*(volatile uint32_t*)(DMA1_BASE + 0x00))
+#define DMA1_LIFCR (*(volatile uint32_t*)(DMA1_BASE + 0x08))
+#define DMA1_S0CR  (*(volatile uint32_t*)(DMA1_BASE + 0x10))
+#define DMA1_S0NDTR (*(volatile uint32_t*)(DMA1_BASE + 0x14))
+#define DMA1_S0PAR (*(volatile uint32_t*)(DMA1_BASE + 0x18))
+#define DMA1_S0M0AR (*(volatile uint32_t*)(DMA1_BASE + 0x1C))
+#define DMAMUX_REQ_USART3_RX 45
+
+// DMAMUX1
+#define DMAMUX1_BASE 0x40020800UL
+#define DMAMUX1_C0CR (*(volatile uint32_t*)(DMAMUX1_BASE + 0x00))
 
 // ISR
 #define NVIC_ISER ((volatile uint32_t*)0xE000E100)
@@ -38,5 +50,11 @@ char uart3_rx_char(void);
 void uart3_print(char *str);
 void uart3_rx_string(char *buffer, uint32_t maxLen);
 void USART3_IRQHandler(void);
+
+// Global variables 
+#define RX_BUFFER_SIZE 128
+extern volatile char rx_buffer[RX_BUFFER_SIZE];
+extern volatile uint16_t rx_head;
+extern volatile uint16_t rx_tail;
 
 #endif // UART_H

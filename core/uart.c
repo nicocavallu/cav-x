@@ -5,7 +5,7 @@
 #include <errno.h>
 #include "uart.h"
 
-volatile char rx_buffer[RX_BUFFER_SIZE];
+volatile char rx_buffer[RX_BUFFER_SIZE]__attribute__((section(".dma_buffer")));
 volatile uint16_t rx_head = 0;
 volatile uint16_t rx_tail = 0;
 
@@ -13,12 +13,26 @@ volatile uint16_t rx_tail = 0;
 void uart3_init(void)
 {
     // Enable clocks 
+    RCC_AHB1ENR |= (1 << 0);
     RCC_AHB4ENR |= (1 << 3);
     RCC_APB1ENR1 |= (1 << 18);
 
     // Set PD8 and PD9 to altenate function
     GPIOD_MODER &= ~(15 << 16);
     GPIOD_MODER |= (10 << 16);
+
+    // Set DMAMUX
+    DMAMUX1_C0CR = DMAMUX_REQ_USART3_RX;
+
+    // Configure DMA 
+    DMA1_S0CR &= ~(1 << 0);
+    while(DMA1_S0CR & (1 << 0));;
+    DMA1_S0PAR = (uint32_t)&USART3_RDR;
+    DMA1_S0M0AR = (uint32_t)rx_buffer;
+    DMA1_S0NDTR = RX_BUFFER_SIZE;
+    DMA1_S0CR &= ~(3 << 6);
+    DMA1_S0CR |= (5 << 8);
+    DMA1_S0CR |= (1 << 0);
 
     // Enable UART tx and rx
     GPIOD_AFRH &= ~(255 << 0);
@@ -29,11 +43,12 @@ void uart3_init(void)
 
     //Initialize UART interrupt 
     USART3_CR1 &= ~(1 << 0);
-    USART3_CR1 |=  (1 << 2) | (1 << 3) | (1 << 5) ;
+    USART3_CR1 |=  (1 << 2) | (1 << 3) | (1 << 4);
+    USART3_CR1 &=  ~(1 << 5);
+    USART3_CR3 |= (1 << 6);
     USART3_CR1 |= (1 << 0);
 
     // Configure NVIC 
-
     // Enable USART3 Interrupt 
     NVIC_ISER[USART3_IRQ/32] |= (1 << (USART3_IRQ % 32));
 
@@ -151,21 +166,16 @@ void USART3_IRQHandler(void)
         USART3_ICR |= (1 << 3); 
     }
 
-    // Check if RXNE is set 
-    if (USART3_ISR & (1 << 5))
+    // Check if IDLE is set 
+    if (USART3_ISR & (1 << 4))
     {
-        // Read RDR
-        char c = (char)USART3_RDR;
+        // Write to hardware 
+        USART3_ICR |= (1 << 4);
 
         // Incremenet buffer 
-        uint16_t next_head = (rx_head + 1) % RX_BUFFER_SIZE;
+        uint16_t dma_index = RX_BUFFER_SIZE - DMA1_S0NDTR;
 
-        // Write to buffer 
-        if (next_head != rx_tail)
-        {
-            rx_buffer[rx_head] = c;
-            rx_head = next_head;
-        } 
+        rx_head = dma_index % RX_BUFFER_SIZE;
     }
 
 }
