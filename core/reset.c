@@ -56,7 +56,7 @@ void EXTI0_handler(void) __attribute__((weak, alias("default_handler")));
 void EXTI15_10_handler(void) __attribute__((weak, alias("default_handler")));
 
 // Timers 
-void TIM2_handler(void) __attribute__((weak, alias("default_handler")));
+void TIM2_IRQHandler(void) __attribute__((weak, alias("default_handler")));
 void TIM3_handler(void) __attribute__((weak, alias("default_handler")));
 
 // UART/Serial 
@@ -154,7 +154,7 @@ void (* const g_pfnVectors[])(void) = {
 
     // 3. STM32 Specific Handlers (Index = 16 + IRQ_Number)    
     [16 + 0]  = WWDG1_handler,
-    [16 + 28] = TIM2_handler,
+    [16 + 28] = TIM2_IRQHandler,
     [16 + 29] = TIM3_handler,
     [16 + 37] = USART1_handler,
     [16 + 39] = USART3_IRQHandler, 

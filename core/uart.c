@@ -13,9 +13,9 @@ volatile uint16_t rx_tail = 0;
 void uart3_init(void)
 {
     // Enable clocks 
-    RCC_AHB1ENR |= (1 << 0);
-    RCC_AHB4ENR |= (1 << 3);
-    RCC_APB1ENR1 |= (1 << 18);
+    RCC_C1_AHB1ENR |= (1 << 0);
+    RCC_C1_AHB4ENR |= (1 << 3);
+    RCC_C1_APB1LENR1 |= (1 << 18);
 
     // Set PD8 and PD9 to altenate function
     GPIOD_MODER &= ~(15 << 16);
@@ -160,10 +160,10 @@ int _write(int file, char *ptr, int len)
 // UART interupt handler 
 void USART3_IRQHandler(void)
 {
-    // Clear ORE 
-    if (USART3_ISR & (1 << 3))
+    // Clear ORE, FE, NE
+    if (USART3_ISR & ((1 << 1) | (1 << 2) | (1 << 3)))
     {
-        USART3_ICR |= (1 << 3); 
+        USART3_ICR |= (1 << 1) | (1 << 2) | (1 << 3); 
     }
 
     // Check if IDLE is set 
