@@ -132,14 +132,13 @@ void default_handler(void)
     while(1) {}
 }
 
-// Create vector table using GCC Designated Initializers (Table 142 NVIC)
+// Vector table using GCC Designated Initializers (Table 142 NVIC)
 __attribute__((section(".isr_vector")))
 void (* const g_pfnVectors[])(void) = {
     
-    //Fill indices 0 through 150 with default_handler.
     [0 ... 165] = default_handler,
 
-    // 2. System Exceptions 
+    // System Exceptions 
     [0] = (void (*)(void))(&_estack), // Main Stack Pointer
     [1]  = reset_handler,            // Entry point
     [2]  = NMI_handler, 
@@ -152,7 +151,7 @@ void (* const g_pfnVectors[])(void) = {
     [14] = PendSV_handler,
     [15] = SysTick_handler,
 
-    // 3. STM32 Specific Handlers (Index = 16 + IRQ_Number)    
+    // STM32 Specific Handlers (Index = 16 + IRQ_Number)    
     [16 + 0]  = WWDG1_handler,
     [16 + 28] = TIM2_IRQHandler,
     [16 + 29] = TIM3_handler,

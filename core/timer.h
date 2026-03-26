@@ -24,6 +24,7 @@ extern volatile uint32_t sys_tick;
 void tim2_init(void);
 uint32_t get_sys_tick(void);
 void TIM2_IRQHandler(void);
+void delay_ms(uint32_t ms);
 
 // 
 #endif //TIMER_H

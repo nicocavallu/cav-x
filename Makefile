@@ -10,13 +10,13 @@ CPU = -mcpu=cortex-m7 -mthumb -mfloat-abi=hard -mfpu=fpv5-d16
 
 # Directories & Files
 LDSCRIPT = core/stm32h753xx.ld
-SRCS = core/reset.c core/main.c core/uart.c core/timer.c
+SRCS = core/reset.c core/main.c core/uart.c core/timer.c core/spi.c
 
 # Compiler Flags
 CFLAGS = $(CPU) -O0 -g3 -Wall -Icore --specs=nosys.specs
 
 # Linker Flags
-LDFLAGS = $(CPU) -T$(LDSCRIPT) -Wl,-Map=$(TARGET).map,--cref -Wl,--gc-sections
+LDFLAGS = $(CPU) -T$(LDSCRIPT) -Wl,-Map=$(TARGET).map,--cref -Wl,--gc-sections 
 
 # Build Rules
 all: $(TARGET).bin

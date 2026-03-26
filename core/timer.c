@@ -12,6 +12,7 @@ void tim2_init(void)
     // Enable clock 
     RCC_C1_APB1LENR1 |= (1 << 0);
     volatile uint32_t dummy = RCC_C1_APB1LENR1;
+    (void)dummy;
 
     // Configure clock
     TIM2_PSC = 64 - 1;
@@ -41,4 +42,15 @@ void TIM2_IRQHandler(void)
 uint32_t get_sys_tick(void)
 {
     return sys_tick;
+}
+
+// Millisecond delay using the hardware timer
+void delay_ms(uint32_t ms)
+{
+    uint32_t start = get_sys_tick();
+    
+    while ((get_sys_tick() - start) < ms)
+    {
+        // Wait here
+    }
 }

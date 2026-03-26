@@ -5,16 +5,7 @@
 
 #include "uart.h"
 #include "timer.h"
-
-
-// Define Register Addresses 
-#define GPIOB_BASE 0x58020400UL  
-#define GPIOB_MODER (*(volatile uint32_t*)(GPIOB_BASE + 0x00))
-#define GPIOB_ODR (*(volatile uint32_t*)(GPIOB_BASE + 0x14))
-
-#define RCC_BASE 0x58024400UL
-#define RCC_AHB4ENR (*(volatile uint32_t*)(RCC_BASE + 0x140))
-
+#include "spi.h"
 
 //Initialize user functions 
 int main(void);
@@ -32,21 +23,36 @@ int main(void)
     // 1. Initialize the UART (This now fires up the DMA and DMAMUX!)
     uart3_init();
     tim2_init();
+    spi1_init();
 
     // Initialize LED on PB0 (Optional)
     RCC_C1_AHB4ENR |= (1 << 1); 
     GPIOB_MODER &= ~(3 << 0);
     GPIOB_MODER |=  (1 << 0);
 
-    uint32_t last_print_time = 0;
+    uint8_t tx_byte = 0x00;
+    uint8_t rx_byte;
+    __asm volatile ("cpsie i" : : : "memory");
 
     while(1)
     {
-        uint32_t current_time = get_sys_tick();
-        if (current_time - last_print_time >= 1000) 
-        { // Has exactly 1000ms passed?
-            uart3_print("1 Second has passed!\r\n");
-            last_print_time = current_time;
+        rx_byte = spi1_transfer(tx_byte);
+        printf("TX: 0x%02X | RX: 0x%02X\r\n", tx_byte, rx_byte);
+
+        if (rx_byte == tx_byte)
+        {
+            GPIOB_ODR |= (1 << 0);     // LED ON
+            delay_ms(1000);          // Wait ~0.5 seconds
+            GPIOB_ODR &= ~(1 << 0);    // LED OFF
+            delay_ms(1000); 
         }
+        else 
+        {
+            GPIOB_ODR &= ~(1 << 0);    // Keep OFF if wire is unplugged
+        }
+
+        tx_byte++;
+        
+        //delay(10000000); // Wait ~0.5 seconds before next transfer
     }
 }
