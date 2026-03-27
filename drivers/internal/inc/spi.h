@@ -19,5 +19,8 @@
 void spi1_init(void);
 void spi1_transmit(uint8_t data);
 uint8_t spi1_transfer(uint8_t tx_data);
+void spi1_dma_transfer(uint8_t *tx_buf, uint8_t *rx_buf, uint16_t length);
+void DMA_STR1_IRQhandler(void);
+extern volatile uint8_t spi1_dma_complete;
 
 #endif // SPI_H

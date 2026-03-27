@@ -11,6 +11,9 @@
 int main(void);
 void delay(volatile uint32_t count);
 
+uint8_t tx_data[4] = {0xDE, 0xAD, 0xBE, 0xEF};
+uint8_t rx_data[4] = {0};
+
 // Delay Function 
 void delay(volatile uint32_t count)
 {
@@ -30,29 +33,28 @@ int main(void)
     GPIOB_MODER &= ~(3 << 0);
     GPIOB_MODER |=  (1 << 0);
 
-    uint8_t tx_byte = 0x00;
-    uint8_t rx_byte;
+   
+
     __asm volatile ("cpsie i" : : : "memory");
+    spi1_dma_transfer(tx_data, rx_data, 4);
 
     while(1)
     {
-        rx_byte = spi1_transfer(tx_byte);
-        printf("TX: 0x%02X | RX: 0x%02X\r\n", tx_byte, rx_byte);
-
-        if (rx_byte == tx_byte)
+        if (spi1_dma_complete == 1)
         {
-            GPIOB_ODR |= (1 << 0);     // LED ON
-            delay_ms(1000);          // Wait ~0.5 seconds
-            GPIOB_ODR &= ~(1 << 0);    // LED OFF
-            delay_ms(1000); 
-        }
-        else 
-        {
-            GPIOB_ODR &= ~(1 << 0);    // Keep OFF if wire is unplugged
+            // Reset the flag
+            spi1_dma_complete = 0;
+
+            // Do something with rx_data here!
+            printf("Got data: %02X %02X\r\n", rx_data[0], rx_data[1]);
+
+            // Maybe trigger the next transfer, or do it based on a timer
+            delay_ms(100);
+            spi1_dma_transfer(tx_data, rx_data, 4);
+            GPIOB_ODR |= (1 << 0);
         }
 
-        tx_byte++;
-        
-        //delay(10000000); // Wait ~0.5 seconds before next transfer
+        delay_ms(1000);          // Wait ~0.5 seconds
+        GPIOB_ODR &= ~(1 << 0);    // LED OFF 
     }
 }

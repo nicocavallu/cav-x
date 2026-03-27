@@ -14,23 +14,6 @@
 #define USART3_RDR (*(volatile uint32_t*)(USART3_BASE + 0x24))
 #define USART3_TDR (*(volatile uint32_t*)(USART3_BASE + 0x28))
 
-// DMA1 
-#define DMA1_BASE 0x40020000UL
-#define DMA1_LISR  (*(volatile uint32_t*)(DMA1_BASE + 0x00))
-#define DMA1_LIFCR (*(volatile uint32_t*)(DMA1_BASE + 0x08))
-#define DMA1_S0CR  (*(volatile uint32_t*)(DMA1_BASE + 0x10))
-#define DMA1_S0NDTR (*(volatile uint32_t*)(DMA1_BASE + 0x14))
-#define DMA1_S0PAR (*(volatile uint32_t*)(DMA1_BASE + 0x18))
-#define DMA1_S0M0AR (*(volatile uint32_t*)(DMA1_BASE + 0x1C))
-#define DMAMUX_REQ_USART3_RX 45
-
-// DMAMUX1
-#define DMAMUX1_BASE 0x40020800UL
-#define DMAMUX1_C0CR (*(volatile uint32_t*)(DMAMUX1_BASE + 0x00))
-
-// IRQ
-#define USART3_IRQ 39
-
 // Function Prototypes
 void uart3_init(void);
 void uart3_tx_char(char c);

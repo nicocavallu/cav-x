@@ -74,12 +74,16 @@ void I2C4_EV_handler(void) __attribute__((weak, alias("default_handler")));
 void I2C4_ER_handler(void) __attribute__((weak, alias("default_handler")));
 
 // SPI
-void SPI1_handler(void) __attribute__((weak, alias("default_handler")));
+void SPI1_IRQhandler(void) __attribute__((weak, alias("default_handler")));
 void SPI2_handler(void) __attribute__((weak, alias("default_handler")));
 void SPI3_handler(void) __attribute__((weak, alias("default_handler")));
 void SPI4_handler(void) __attribute__((weak, alias("default_handler")));
 void SPI5_handler(void) __attribute__((weak, alias("default_handler")));
 void SPI6_handler(void) __attribute__((weak, alias("default_handler")));
+
+// DMA
+void DMA_STR1_IRQhandler(void) __attribute__((weak, alias("default_handler")));
+
 
 // Entry point for the program (Defined in linker script)
 void reset_handler(void) 
@@ -153,6 +157,7 @@ void (* const g_pfnVectors[])(void) = {
 
     // STM32 Specific Handlers (Index = 16 + IRQ_Number)    
     [16 + 0]  = WWDG1_handler,
+    [16 + 12] = DMA_STR1_IRQhandler,
     [16 + 28] = TIM2_IRQHandler,
     [16 + 29] = TIM3_handler,
     [16 + 37] = USART1_handler,
