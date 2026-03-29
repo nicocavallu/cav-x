@@ -6,19 +6,11 @@
 #include "uart.h"
 #include "timer.h"
 #include "spi.h"
+#include "pid.h"
 
 //Initialize user functions 
 int main(void);
-void delay(volatile uint32_t count);
 
-uint8_t tx_data[4] = {0xDE, 0xAD, 0xBE, 0xEF};
-uint8_t rx_data[4] = {0};
-
-// Delay Function 
-void delay(volatile uint32_t count)
-{
-    while(count--);
-}
 
 //Blink GPIOB Pin 0 - Green LD1 
 int main(void)
@@ -36,22 +28,45 @@ int main(void)
    
 
     __asm volatile ("cpsie i" : : : "memory");
-    spi1_dma_transfer(tx_data, rx_data, 4);
+
+      // . Create the motor controller in memory
+        PID_Controller left_motor;
+
+        // 3. Initialize the variables. 
+        // Remember, we scale by 2^16 (65536).
+        // Let's set Kp = 1.5, Ki = 0.1, Kd = 0.5
+        left_motor.kp = 98304;   // 1.5 * 65536
+        left_motor.ki = 6553;    // 0.1 * 65536
+        left_motor.kd = 32768;   // 0.5 * 65536
+
+        // Start with clean memory
+        left_motor.error_sum = 0;
+        left_motor.last_error = 0;
+
+        // Let's say our motor driver takes a max PWM value of 255 (8-bit timer)
+        left_motor.max_pwm = 255;
+
+        // 4. Run a simulated test!
+        int32_t target_speed = 100;
+        int32_t current_speed = 0;
+        delay_ms(10000);
+
+        printf("--- PID Test Starting ---\r\n");
 
     while(1)
     {
-        if (spi1_dma_complete == 1)
+
+        // Loop 10 times to see how the PID responds as we "accelerate"
+        for (int i = 0; i < 10; i++) 
         {
-            // Reset the flag
-            spi1_dma_complete = 0;
-
-            // Do something with rx_data here!
-            printf("Got data: %02X %02X\r\n", rx_data[0], rx_data[1]);
-
-            // Maybe trigger the next transfer, or do it based on a timer
-            delay_ms(100);
-            spi1_dma_transfer(tx_data, rx_data, 4);
+            int32_t pwm_command = calculate_pid(&left_motor, target_speed, current_speed);
+            
+            printf("Current Speed: %ld | PWM Output: %ld\r\n", current_speed, pwm_command);
+            
+            // Fake physics: Assume the motor sped up a little bit based on our PWM
+            current_speed += (pwm_command / 10); 
             GPIOB_ODR |= (1 << 0);
+            delay_ms(100);
         }
 
         delay_ms(1000);          // Wait ~0.5 seconds

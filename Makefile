@@ -14,7 +14,8 @@ SRCS = core/src/main.c \
        core/src/reset.c \
        drivers/internal/src/spi.c \
        drivers/internal/src/uart.c \
-       drivers/internal/src/timer.c
+       drivers/internal/src/timer.c \
+       drivers/internal/src/pid.c
 INCLUDES = -Icore/inc -Idrivers/internal/inc
 
 # Compiler Flags
