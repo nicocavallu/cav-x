@@ -54,3 +54,33 @@ void delay_ms(uint32_t ms)
         // Wait here
     }
 }
+
+// PWM Initialization
+void tim2pwm_init(void)
+{
+    // Enable clocks 
+    RCC_C1_APB1LENR1 |= (1 << 0);
+    RCC_C1_AHB4ENR |= (1 <<0);
+
+    // Set A0 to alternate function 
+    GPIOA_MODER &= ~(3 << 0);
+    GPIOA_MODER |= (2 << 0);
+    GPIOA_AFRL &= ~(0xF << 0);
+    GPIOA_AFRL |= (1 << 0);
+
+    // Set Prescaler and ARR 
+    TIM2_PSC &= 0;
+    TIM2_ARR = 255;
+
+    // Configure and enable pwm 
+    TIM2_CCMR1 &= ~((1 << 13) | (1 << 4));
+    TIM2_CCMR1 |= (3 << 5) | (1 << 3);
+    TIM2_CCER |= (1 << 0);
+    TIM2_CR1 |= (1 << 0);
+}
+
+void tim2_set_duty(uint8_t duty)
+{
+    // Set PWM1 to Duty
+    TIM2_CCR1 = duty;
+}

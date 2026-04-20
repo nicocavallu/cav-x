@@ -13,9 +13,12 @@ extern volatile uint32_t sys_tick;
 #define TIM2_DIER (*(volatile uint32_t *)(TIM2_BASE + 0x0C))
 #define TIM2_SR (*(volatile uint32_t *)(TIM2_BASE + 0x10))
 #define TIM2_EGR (*(volatile uint32_t *)(TIM2_BASE + 0x14))
+#define TIM2_CCMR1 (*(volatile uint32_t *)(TIM2_BASE + 0x18)) 
+#define TIM2_CCER  (*(volatile uint32_t *)(TIM2_BASE + 0x20))
 #define TIM2_CNT (*(volatile uint32_t *)(TIM2_BASE + 0x24))
 #define TIM2_PSC (*(volatile uint32_t *)(TIM2_BASE + 0x28))
 #define TIM2_ARR (*(volatile uint32_t *)(TIM2_BASE + 0x2C))
+#define TIM2_CCR1  (*(volatile uint32_t *)(TIM2_BASE + 0x34))
 
 // IRQ
 #define TIM2_IRQ 28
@@ -25,6 +28,8 @@ void tim2_init(void);
 uint32_t get_sys_tick(void);
 void TIM2_IRQHandler(void);
 void delay_ms(uint32_t ms);
+void tim2pwm_init(void);
+void tim2_set_duty(uint8_t duty);
 
 // 
 #endif //TIMER_H
